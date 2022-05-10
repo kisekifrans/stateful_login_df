@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import '../mixins/validation_mixin.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with ValidationMixin {
   final formKey = GlobalKey<FormState>();
+
+  String email = '';
+  String password = '';
 
   @override
   Widget build(BuildContext context) {
@@ -41,10 +45,9 @@ class _LoginScreenState extends State<LoginScreen> {
         hintText: "Emailmu apa gess?",
         labelText: "Email *",
       ),
-      validator: (value) {
-        if (value!.contains('@')) {
-          return 'Please enter a valid email address.';
-        }
+      validator: validateEmail,
+      onSaved: (value) {
+        email = value!;
       },
     );
   }
@@ -53,17 +56,17 @@ class _LoginScreenState extends State<LoginScreen> {
     return Container(
       margin: EdgeInsets.only(bottom: 20.0),
       child: TextFormField(
-          obscureText: _obscureText,
-          decoration: InputDecoration(
-            icon: Icon(Icons.password),
-            labelText: "Enter Password",
-            hintText: "This is your password ahaha",
-          ),
-          validator: (value) {
-            if (value!.length < 6) {
-              return 'Password must be at least 6 characters';
-            }
-          }),
+        obscureText: _obscureText,
+        decoration: InputDecoration(
+          icon: Icon(Icons.password),
+          labelText: "Enter Password",
+          hintText: "This is your password ahaha",
+        ),
+        validator: validatePassword,
+        onSaved: (value) {
+          password = value!;
+        },
+      ),
     );
   }
 
@@ -72,7 +75,10 @@ class _LoginScreenState extends State<LoginScreen> {
       color: Color.fromARGB(255, 89, 168, 232),
       child: Text('Submit bang!'),
       onPressed: () {
-        print(formKey.currentState!.validate());
+        if (formKey.currentState!.validate()) {
+          formKey.currentState!.save();
+          print('Time to post $email and $password to my API');
+        }
       },
     );
   }
